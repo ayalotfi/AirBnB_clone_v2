@@ -134,11 +134,11 @@ class HBNBCommand(cmd.Cmd):
             else:
                 try:
                     value = int(value)
-                except:
+                except Exception as e:
                     pass
                 try:
                     value = float(value)
-                except:
+                except Exception as e:
                     pass
             params[key] = value
         try:
