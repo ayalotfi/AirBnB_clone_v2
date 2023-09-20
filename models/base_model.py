@@ -5,7 +5,6 @@ Contains class BaseModel
 
 from datetime import datetime
 import models
-from os import getenv
 import uuid
 
 time = "%Y-%m-%dT%H:%M:%S.%f"

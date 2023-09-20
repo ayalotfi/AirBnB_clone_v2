@@ -135,10 +135,11 @@ class HBNBCommand(cmd.Cmd):
                 try:
                     value = int(value)
                 except:
-                    try:
-                        value = float(value)
-                    except:
-                        continue
+                    pass
+                try:
+                    value = float(value)
+                except:
+                    pass
             params[key] = value
         try:
             new_instance = HBNBCommand.classes[class_name](**params)
