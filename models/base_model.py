@@ -5,13 +5,27 @@ Contains class BaseModel
 
 from datetime import datetime
 import models
+from os import getenv
+import sqlalchemy
+from sqlalchemy import Column, String, DateTime
+from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
 time = "%Y-%m-%dT%H:%M:%S.%f"
 
+if models.storage_t == "db":
+    Base = declarative_base()
+else:
+    Base = object
+
 
 class BaseModel:
     """The BaseModel class from which future classes will be derived"""
+
+    if models.storage_t == "db":
+        id = Column(String(60), primary_key=True)
+        created_at = Column(DateTime, default=datetime.utcnow)
+        updated_at = Column(DateTime, default=datetime.utcnow)
 
     def __init__(self, *args, **kwargs):
         """Initialization of the base model"""
