@@ -2,7 +2,7 @@
 """
 Compress before sending.
 """
-from fabric.api import local, env
+from fabric.api import local
 from datetime import datetime
 
 
