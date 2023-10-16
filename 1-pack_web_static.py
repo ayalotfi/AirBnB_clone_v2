@@ -2,8 +2,10 @@
 """
 Compress before sending.
 """
-from fabric.api import local
+from fabric.api import local, env
 from datetime import datetime
+
+env.hosts = ['54.162.34.11', '100.25.140.43']
 
 
 def do_pack():
