@@ -17,19 +17,19 @@ def do_deploy(archive_path):
 
     try:
         archive_name = archive_path.split("/")[-1]
-        archive_name_without_extension = archive_name.split(".")[0]
+        arch_name_no_extension = archive_name.split(".")[0]
         path = "/data/web_static/releases/"
         put(archive_path, '/tmp/')
-        run('mkdir -p {}{}/'.format(path, archive_name_without_extension))
+        run('mkdir -p {}{}/'.format(path, arch_name_no_extension))
         run('tar -xzf /tmp/{} -C {}{}/'.format(archive_name,
-            path, archive_name_without_extension))
+            path, arch_name_no_extension))
         run('rm /tmp/{}'.format(archive_name))
         run('mv {0}{1}/web_static/* {0}{1}/'.format(path,
-            archive_name_without_extension))
-        run('rm -rf {}{}/web_static'.format(path, archive_name_without_extension))
+            arch_name_no_extension))
+        run('rm -rf {}{}/web_static'.format(path, arch_name_no_extension))
         run('rm -rf /data/web_static/current')
         run('ln -s {}{}/ /data/web_static/current'.format(path,
-            archive_name_without_extension))
+            arch_name_no_extension))
         return True
     except:
         return False
