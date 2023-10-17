@@ -2,12 +2,24 @@
 """
 Deploy archive!
 """
-from fabric.api import put, run, env
+from fabric.api import put, run, env, local
+from datetime import datetime
 from os.path import exists
 
-env.user = 'ubuntu'
-env.key_filename = '~/.ssh/id_rsa'
 env.hosts = ['54.162.34.11', '100.25.140.43']
+
+
+def do_pack():
+    """
+    Compress a folder to .tgz archive.
+    """
+    date = datetime.utcnow()
+    path = "versions/web_static_{}.tgz".format(
+        datetime.strftime(date, "%Y%m%d%H%M%S"))
+    local("mkdir -p versions")
+    if local("tar -cvzf {} web_static".format(path)).failed:
+        return None
+    return path
 
 
 def do_deploy(archive_path):
