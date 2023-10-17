@@ -42,7 +42,7 @@ def do_deploy(archive_path):
         run("ln -s {}{}/ /data/web_static/current".format(dpath, fn_no_ext))
         print("New version deployed!")
         return True
-    except Exception:
+    except:
         return False
 
 
