@@ -1,54 +1,55 @@
 #!/usr/bin/python3
+""" Deploy archive!
 """
-Do complete deploy of the web static
-"""
+from fabric.api import task, local, env, put, run
 from datetime import datetime
-from os import path
-from fabric.api import put, run, env, local
+import os
+
+env.hosts = ['54.162.34.11', '100.25.140.43']
 
 
-env.hosts = ["35.229.34.27", "35.237.166.174"]
-
-
+@task
 def do_pack():
+    """ do_pack method
     """
-    Compress a folder to .tgz archive.
-    """
-    date = datetime.utcnow()
-    path = "versions/web_static_{}.tgz".format(
-        datetime.strftime(date, "%Y%m%d%H%M%S"))
-    local("mkdir -p versions")
-    if local("tar -cvzf {} web_static".format(path)).failed:
-        return
-    return path
+    formatted_dt = datetime.now().strftime('%Y%m%d%H%M%S')
+    mkdir = "mkdir -p versions"
+    path = "versions/web_static_{}.tgz".format(formatted_dt)
+    print("Packing web_static to {}".format(path))
+    if local("{} && tar -cvzf {} web_static".format(mkdir, path)).succeeded:
+        return path
+    return None
 
 
+@task
 def do_deploy(archive_path):
+    """ do_deploy method
     """
-    distributes an archive to web servers
-
-    Args:
-        archive_path (str): has the form "versions/web_static_YMDHMS.tgz"
-    """
-    if not path.exists(archive_path):
+    try:
+        if not os.path.exists(archive_path):
+            return False
+        fn_with_ext = os.path.basename(archive_path)
+        fn_no_ext, ext = os.path.splitext(fn_with_ext)
+        dpath = "/data/web_static/releases/"
+        put(archive_path, "/tmp/")
+        run("rm -rf {}{}/".format(dpath, fn_no_ext))
+        run("mkdir -p {}{}/".format(dpath, fn_no_ext))
+        run("tar -xzf /tmp/{} -C {}{}/".format(fn_with_ext, dpath, fn_no_ext))
+        run("rm /tmp/{}".format(fn_with_ext))
+        run("mv {0}{1}/web_static/* {0}{1}/".format(dpath, fn_no_ext))
+        run("rm -rf {}{}/web_static".format(dpath, fn_no_ext))
+        run("rm -rf /data/web_static/current")
+        run("ln -s {}{}/ /data/web_static/current".format(dpath, fn_no_ext))
+        print("New version deployed!")
+        return True
+    except:
         return False
-    file_tar = archive_path.split("/")[-1]  # web_static_YMDHMS.tgz
-    server_path = "/data/web_static/releases/{}".format(file_tar[:-4])
-    run("mkdir -p {}".format(server_path))  # create path in the server
-    put(archive_path, "/tmp/")  # copy from local to remote
-    run("tar -xzf /tmp/{} -C {}".format(file_tar, server_path))
-    run("rm /tmp/{}".format(file_tar))
-    run("mv -f {}/web_static/* {}/".format(server_path, server_path))
-    run('rm -rf {}/web_static'.format(server_path))
-    run("rm -rf /data/web_static/current")
-    run("ln -s {} /data/web_static/current".format(server_path))
-    return True
 
 
 def deploy():
     """creates and distributes an archive to web servers
     """
     archive_path = do_pack()
-    if not archive_path:
+    if archive_path is None:
         return False
     return do_deploy(archive_path)

@@ -15,5 +15,5 @@ def do_pack():
         datetime.strftime(date, "%Y%m%d%H%M%S"))
     local("mkdir -p versions")
     if local("tar -cvzf {} web_static".format(path)).failed:
-        return
+        return None
     return path
