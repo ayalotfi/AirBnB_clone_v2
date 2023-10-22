@@ -1,28 +1,33 @@
 #!/usr/bin/python3
 """
-script that starts a Flask web application:
-- web application listen on 0.0.0.0, port 5000
+Starts a Flask web application.
+The application listens on 0.0.0.0, port 5000.
+Routes:
+/states_list: HTML page with a list of all State objects in DBStorage.
 """
 from flask import Flask, render_template
-from models.state import State
 from models import storage
-
-
+from models.state import State
 app = Flask(__name__)
-
-
-@app.route("/states_list", strict_slashes=False)
-def fetch_states():
-    """Fetch states from DataBase"""
-    states = storage.all(State)
-    return render_template("7-states_list.html", states=states)
+app.url_map.strict_slashes = False
 
 
 @app.teardown_appcontext
-def close_session(exc):
-    """Close session after each request"""
+def close_db(exc):
+    """close the current session of sqlalchemist"""
     storage.close()
 
 
+@app.route('/states_list')
+def states_list():
+    """
+    Displays an HTML page with a list of all State objects in DBStorage.
+    States are sorted by name.
+    """
+    states = storage.all(State).values()
+    return render_template("7-states_list.html", states=states)
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
